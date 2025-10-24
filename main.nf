@@ -37,4 +37,13 @@ workflow {
 
     // Collect and merge filtered VCFs
     MERGE_VCFS(GET_BI_SNPS.out.bi_vcf.collect())
+
+    publish:
+    final_vcf= MERGE_VCFS.out.merged_vcf
+}
+
+output {
+    final_vcf {
+        
+    }
 }
