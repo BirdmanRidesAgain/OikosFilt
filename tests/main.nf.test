@@ -1,0 +1,85 @@
+@Grab('com.google.guava:guava:30.1.1-jre')
+
+import nextflow.plugin.Plugins
+import nextflow.plugin.PluginManager
+import java.nio.file.Path
+
+workflow {
+    // Define test data
+    def test_data = "${projectDir}/data/falcon_subset.vcf.gz"
+    def expected_output = "${projectDir}/tests/data/expected/filtered_snps.vcf.gz"
+
+    // Create channel from test data
+    input_ch = Channel.fromPath(test_data)
+    
+    // Run the workflow
+    GET_BI_SNPS(input_ch)
+}
+
+// Test for the main workflow
+workflow test_main {
+    test('Test biallelic SNP filtering') {
+        when {
+            params {
+                vcf = "${projectDir}/data/falcon_subset.vcf.gz"
+                outdir = "${projectDir}/results"
+            }
+        }
+
+        then {
+            assert workflow.success
+            with(path("${params.outdir}/bi_snps/*.vcf")) {
+                assert exists
+                // Compare the output with expected using bcftools
+                """
+                bcftools view -H ${it} > test_output.vcf
+                bcftools view -H ${projectDir}/tests/data/expected/filtered_snps.vcf.gz > expected_output.vcf
+                diff test_output.vcf expected_output.vcf
+                """
+                assert process.success
+            }
+        }
+    }
+}
+
+// Test for the GET_BI_SNPS process
+process test_get_bi_snps {
+    test('Should filter for biallelic SNPs') {
+        setup {
+            // Copy test data to work directory
+            file("input.vcf.gz").mkdirs()
+            file("${projectDir}/data/falcon_subset.vcf.gz").copyTo("input.vcf.gz")
+        }
+        
+        when {
+            process {
+                """
+                process GET_BI_SNPS {
+                    input:
+                        path vcf from 'input.vcf.gz'
+                    output:
+                        path "filtered_snps.vcf.gz" into result
+                    script:
+                        """
+                        bcftools view -m2 -M2 -v snps ${vcf} -Oz -o filtered_snps.vcf.gz
+                        """
+                }
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            with(process.out.result) {
+                assert path(it).exists()
+                // Compare output with expected
+                """
+                bcftools view -H ${it} > test_output.vcf
+                bcftools view -H ${projectDir}/tests/data/expected/filtered_snps.vcf.gz > expected_output.vcf
+                diff test_output.vcf expected_output.vcf
+                """
+                assert process.success
+            }
+        }
+    }
+}
