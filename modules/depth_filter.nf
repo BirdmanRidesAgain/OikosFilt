@@ -8,6 +8,9 @@ workflow DEPTH_FILTER {
 
     main:
     FILT_95CI_DP(vcf_ch)
+    //FILT_95CI_DP.out.variant_counts.view { sample_name, count_file ->
+    //"Sample: ${sample_name}, Variants: ${count_file.text.trim()}"
+    //}
     FILT_MIN_DP(FILT_95CI_DP.out.filt_vcf, min_dp)
 
     emit:
