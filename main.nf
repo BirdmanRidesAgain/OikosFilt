@@ -3,13 +3,11 @@
 nextflow.enable.dsl = 2
 
 // Import modules
-include { SPLIT_VCF } from './modules/split_vcf/main'
-include { GET_BI_SNPS } from './modules/bi_snps/main'
-include { MERGE_VCFS } from './modules/merge_vcf/main'
+include { SPLIT_VCF } from './modules/split_vcf'
+include { GET_BI_SNPS } from './modules/bi_snps'
+include { DEPTH_FILTER } from './modules/depth_filter'
+include { MERGE_VCFS } from './modules/merge_vcf'
 
-/* 
- * main script flow
- */
 
 workflow {
     main:
@@ -18,6 +16,7 @@ workflow {
       ===================================
       vcf: ${params.vcf}
       bi_snps: ${params.bi_snps}
+      min_dp: ${params.min_dp}
       prefix: ${params.prefix}
     """.stripIndent()
 
@@ -35,15 +34,19 @@ workflow {
     // Process each individual VCF to get biallelic SNPs
     GET_BI_SNPS(SPLIT_VCF.out.individual_vcfs.flatten())
 
+    DEPTH_FILTER(GET_BI_SNPS.out.filt_vcf.flatten(), params.min_dp)
+    DEPTH_FILTER.out.variant_counts_95ci.view { sample_name, count_file ->
+        "Sample: ${sample_name}, Variants: ${count_file.text.trim()}"
+    }
+
+    
     // Collect and merge filtered VCFs
-    MERGE_VCFS(GET_BI_SNPS.out.bi_vcf.collect())
+    MERGE_VCFS(GET_BI_SNPS.out.filt_vcf.collect())
 
     publish:
-    final_vcf= MERGE_VCFS.out.merged_vcf
+    final_vcf = MERGE_VCFS.out.merged_vcf
 }
 
 output {
-    final_vcf {
-        
-    }
+    final_vcf {}
 }

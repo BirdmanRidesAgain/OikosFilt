@@ -1,0 +1,21 @@
+process FILT_95CI_DP{
+    tag "$vcf"
+    conda 'bioconda::bcftools'
+
+    input:
+    path vcf
+
+    output:
+    path "${vcf.baseName}_dp95ci.vcf", emit: filt_vcf
+
+    script:
+    """
+    # Calculate 95% confidence interval for DP
+    dp_stats=\$(bcftools query -f '%DP\n' ${vcf} | awk '{sum+=\$1; sumsq+=\$1*\$1} END {mean=sum/NR; sd=sqrt(sumsq/NR - mean*mean); ci95=1.96*sd/sqrt(NR); print mean-ci95, mean+ci95}')
+    lower_bound=\$(echo \$dp_stats | cut -d' ' -f1 | awk '{if (\$1<0) print 0; else print \$1}')
+    upper_bound=\$(echo \$dp_stats | cut -d' ' -f2)
+
+    # Filter variants based on DP 95% CI
+    bcftools filter -e "DP<\$lower_bound || DP>\$upper_bound" ${vcf} -Ov -o ${vcf.baseName}_dp95ci.vcf
+    """
+}

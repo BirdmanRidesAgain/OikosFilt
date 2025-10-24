@@ -1,9 +1,3 @@
-@Grab('com.google.guava:guava:30.1.1-jre')
-
-import nextflow.plugin.Plugins
-import nextflow.plugin.PluginManager
-import java.nio.file.Path
-
 workflow {
     // Define test data
     def test_data = "${projectDir}/data/falcon_subset.vcf.gz"
