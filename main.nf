@@ -39,6 +39,10 @@ workflow {
         "Sample: ${sample_name}, Variants: ${count_file.text.trim()}"
     }
 
+
+    //more filters go here
+
+    
     
     // Collect and merge filtered VCFs
     MERGE_VCFS(GET_BI_SNPS.out.filt_vcf.collect())
