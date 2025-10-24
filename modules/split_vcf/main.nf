@@ -1,6 +1,5 @@
 process SPLIT_VCF {
     tag "$vcf"
-    publishDir "${params.outdir}/split_vcfs", mode: 'copy'
     conda 'bioconda::bcftools'
 
     input:

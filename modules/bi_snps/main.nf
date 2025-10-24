@@ -1,8 +1,5 @@
-params.outdir = 'results'
-
 process GET_BI_SNPS {
     tag "$vcf"
-    publishDir "${params.outdir}/bi_snps", mode: 'copy'
     conda 'bioconda::bcftools'
 
     input:

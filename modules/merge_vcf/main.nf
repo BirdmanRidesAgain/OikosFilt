@@ -1,6 +1,5 @@
 process MERGE_VCFS {
     tag "merge_vcfs"
-    publishDir "${params.outdir}", mode: 'copy'
     conda 'bioconda::bcftools'
 
     input:
