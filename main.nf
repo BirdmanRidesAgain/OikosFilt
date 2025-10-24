@@ -7,12 +7,20 @@ include { SPLIT_VCF } from './modules/split_vcf/main'
 include { GET_BI_SNPS } from './modules/bi_snps/main'
 include { MERGE_VCFS } from './modules/merge_vcf/main'
 
-// Define parameters
-params.vcf = null
-params.outdir = 'results'
+/* 
+ * main script flow
+ */
 
-// Main workflow
 workflow {
+    main:
+    log.info """\
+      O I K O S F I L T - N F   P I P E L I N E
+      ===================================
+      vcf: ${params.vcf}
+      bi_snps: ${params.bi_snps}
+      prefix: ${params.prefix}
+    """.stripIndent()
+
     if (!params.vcf) {
         error "Please provide a VCF file with --vcf"
     }

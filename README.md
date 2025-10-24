@@ -66,6 +66,13 @@ You will need to install both of these for the pipeline to run.
 
 ### Testing
 
+Testing behavior is contained within the `test` directory, and uses a combination of bash and the `nf-test` framework.
+To set up, use the following code:
+```
+./tests/generate_expected.sh
+nf-test test tests/main.nf.test
+```
+
 ### Requirements
 
 The `OikosMap` pipeline is undemanding, and will run on effectively any Linux environment.

@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Nextflow-specific files
+.nextflow.log*
+null/
+work/
+.nextflow
+
 # User-specific files
 *.rsuser
 *.suo
