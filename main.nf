@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 include { SPLIT_VCF } from './modules/split_vcf'
 include { GET_BI_SNPS } from './modules/bi_snps'
 include { DEPTH_FILTER } from './modules/depth_filter'
+include { QUALITY_FILTER } from './modules/qual_filter'
 include { MERGE_VCFS } from './modules/merge_vcf'
 
 
@@ -31,18 +32,26 @@ workflow {
     // Split VCF into individual files
     SPLIT_VCF(ch_vcf, ch_vcf_index)
 
-    // Process each individual VCF to get biallelic SNPs
-    GET_BI_SNPS(SPLIT_VCF.out.individual_vcfs.flatten())
+    // Determine input channel for depth filtering: use biallelic-filtered VCFs if requested,
+    // otherwise use the split individual VCFs so DEPTH_FILTER always receives a valid channel.
+    def ch_for_depth
 
-    DEPTH_FILTER(GET_BI_SNPS.out.filt_vcf.flatten(), params.min_dp)
+    if (params.bi_snps) {
+        GET_BI_SNPS(SPLIT_VCF.out.individual_vcfs.flatten())
+        ch_for_depth = GET_BI_SNPS.out.filt_vcf.flatten()
+    } else {
+        ch_for_depth = SPLIT_VCF.out.individual_vcfs.flatten()
+    }
 
+    DEPTH_FILTER(ch_for_depth, params.min_dp)
+    QUALITY_FILTER(DEPTH_FILTER.out.filt_vcf, params.min_qual, params.min_gq)
 
     //more filters go here
 
     
     
     // Collect and merge filtered VCFs
-    MERGE_VCFS(DEPTH_FILTER.out.filt_vcf.collect())
+    MERGE_VCFS(QUALITY_FILTER.out.filt_vcf.collect())
 
     publish:
     final_vcf = MERGE_VCFS.out.merged_vcf

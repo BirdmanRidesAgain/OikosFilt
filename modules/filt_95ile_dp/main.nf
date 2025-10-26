@@ -6,7 +6,7 @@ process FILT_95ILE_DP{
     path vcf
 
     output:
-    path "${vcf.baseName}_dp95ci.vcf", emit: filt_vcf
+    path "${vcf.baseName}_filt.vcf", emit: filt_vcf
     tuple val("${vcf.baseName}"), path("${vcf.baseName}_variants.count"), emit: variant_counts
 
     script:
@@ -17,8 +17,8 @@ process FILT_95ILE_DP{
     upper_bound=\$(echo "\$ind_cov" | tr ' ' '\n' | sort -n | awk 'BEGIN{q=0.975} {a[NR]=\$1} END {print a[int(NR*q)];}')
 
     # Filter variants based on DP 95% CI
-    bcftools filter -e "FORMAT/DP<\$lower_bound || FORMAT/DP>\$upper_bound" ${vcf} -Ov -o ${vcf.baseName}_dp95ci.vcf
+    bcftools filter -e "FORMAT/DP<\$lower_bound || FORMAT/DP>\$upper_bound" ${vcf} -Ov -o ${vcf.baseName}_filt.vcf
     # Count variants and save to file
-    bcftools view -H ${vcf} | wc -l > ${vcf.baseName}_variants.count
+    bcftools view -H ${vcf.baseName}_filt.vcf | wc -l > ${vcf.baseName}_variants.count
     """
 }
