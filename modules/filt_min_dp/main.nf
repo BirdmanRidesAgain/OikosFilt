@@ -13,7 +13,7 @@ process FILT_MIN_DP {
     script:
     """
     # Filter for minimum depth
-    bcftools filter -i "FORMAT/DP>=${min_dp}" ${vcf} -Ov -o ${vcf.baseName}_filt.vcf
+    bcftools filter -i "INFO/DP>=${min_dp}" ${vcf} -Ov -o ${vcf.baseName}_filt.vcf
     # Count variants and save to file
     bcftools view -H ${vcf} | wc -l > ${vcf.baseName}_variants.count
     """
