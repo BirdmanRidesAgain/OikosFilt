@@ -1,4 +1,4 @@
-process FILT_95CI_DP{
+process FILT_95ILE_DP{
     tag "$vcf"
     conda 'bioconda::bcftools'
 
@@ -11,11 +11,10 @@ process FILT_95CI_DP{
 
     script:
     """
-    # Calculate 95% confidence interval for DP
-    dp_stats=\$(bcftools query -f '%DP\n' ${vcf} | awk '{sum+=\$1; sumsq+=\$1*\$1} END {mean=sum/NR; sd=sqrt(sumsq/NR - mean*mean); ci95=1.96*sd/sqrt(NR); print mean-ci95, mean+ci95}')
-    echo \$dp_stats
-    lower_bound=\$(echo \$dp_stats | cut -d' ' -f1 | awk '{if (\$1<0) print 0; else print \$1}')
-    upper_bound=\$(echo \$dp_stats | cut -d' ' -f2)
+    # Calculate 95% percentile for DP
+    ind_cov=\$(grep -v '^#' ${vcf} | awk '{print \$10}' FS='\t' OFS='\n' | cut -d: -f3 | grep -oE '[0-9]+')
+    lower_bound=\$(echo "\$ind_cov" | tr ' ' '\n' | sort -n | awk 'BEGIN{q=0.025} {a[NR]=\$1} END {print a[int(NR*q)];}')
+    upper_bound=\$(echo "\$ind_cov" | tr ' ' '\n' | sort -n | awk 'BEGIN{q=0.975} {a[NR]=\$1} END {print a[int(NR*q)];}')
 
     # Filter variants based on DP 95% CI
     bcftools filter -e "FORMAT/DP<\$lower_bound || FORMAT/DP>\$upper_bound" ${vcf} -Ov -o ${vcf.baseName}_dp95ci.vcf
