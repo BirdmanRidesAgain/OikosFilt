@@ -6,14 +6,15 @@ process GET_BI_SNPS {
     path vcf
 
     output:
-    path "${vcf.baseName}_filt.vcf", emit: filt_vcf
-    tuple val("${vcf.baseName}"), path("${vcf.baseName}_variants.count"), emit: variant_counts
+    path "${vcf.baseName}_${filt_name}.vcf", emit: filt_vcf
+    tuple val("${vcf.baseName}"), path("${vcf.baseName}_${filt_name}_variants.count"), emit: variant_counts
 
     script:
+    filt_name = "bi_snps"
     """
     # Filter for biallelic SNPs
-    bcftools view -m2 -M2 -v snps ${vcf} -Ov -o ${vcf.baseName}_filt.vcf
+    bcftools view -m2 -M2 -v snps ${vcf} -Ov -o ${vcf.baseName}_${filt_name}.vcf
     # Count variants and save to file
-    bcftools view -H ${vcf.baseName}_filt.vcf | wc -l > ${vcf.baseName}_variants.count
+    bcftools view -H ${vcf.baseName}_${filt_name}.vcf | wc -l > ${vcf.baseName}_${filt_name}_variants.count
     """
 }

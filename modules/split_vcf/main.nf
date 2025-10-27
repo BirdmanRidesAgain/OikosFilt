@@ -4,7 +4,6 @@ process SPLIT_VCF {
 
     input:
     path vcf
-    path index
 
     output:
     path "*.vcf", emit: individual_vcfs

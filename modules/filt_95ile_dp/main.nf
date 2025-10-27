@@ -1,4 +1,4 @@
-process FILT_95ILE_DP{
+process GET_95ILE_DP{
     tag "$vcf"
     conda 'bioconda::bcftools'
 
@@ -6,10 +6,11 @@ process FILT_95ILE_DP{
     path vcf
 
     output:
-    path "${vcf.baseName}_filt.vcf", emit: filt_vcf
-    tuple val("${vcf.baseName}"), path("${vcf.baseName}_variants.count"), emit: variant_counts
+    path "${vcf.baseName}_${filt_name}.vcf", emit: filt_vcf
+    tuple val("${vcf.baseName}"), path("${vcf.baseName}_${filt_name}_variants.count"), emit: variant_counts
 
     script:
+    filt_name = "95ile_dp"
     """
     # Calculate 95% percentile for DP
     ind_cov=\$(grep -v '^#' ${vcf} | awk '{print \$10}' FS='\t' OFS='\n' | cut -d: -f3 | grep -oE '[0-9]+')
@@ -17,8 +18,8 @@ process FILT_95ILE_DP{
     upper_bound=\$(echo "\$ind_cov" | tr ' ' '\n' | sort -n | awk 'BEGIN{q=0.975} {a[NR]=\$1} END {print a[int(NR*q)];}')
 
     # Filter variants based on DP 95% CI
-    bcftools filter -e "FORMAT/DP<\$lower_bound || FORMAT/DP>\$upper_bound" ${vcf} -Ov -o ${vcf.baseName}_filt.vcf
+    bcftools filter -e "FORMAT/DP<\$lower_bound || FORMAT/DP>\$upper_bound" ${vcf} -Ov -o ${vcf.baseName}_${filt_name}.vcf
     # Count variants and save to file
-    bcftools view -H ${vcf.baseName}_filt.vcf | wc -l > ${vcf.baseName}_variants.count
+    bcftools view -H ${vcf.baseName}_${filt_name}.vcf | wc -l > ${vcf.baseName}_${filt_name}_variants.count
     """
 }

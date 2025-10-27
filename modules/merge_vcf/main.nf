@@ -1,12 +1,13 @@
 process MERGE_VCFS {
-    tag "merge_vcfs"
+    tag "Merge individual VCFs"
     conda 'bioconda::bcftools'
 
     input:
     path vcfs
+    val prefix
 
     output:
-    path "merged_filtered.vcf.gz", emit: merged_vcf
+    path "${prefix}.vcf", emit: filt_vcf
 
     script:
     """
@@ -20,6 +21,6 @@ process MERGE_VCFS {
     ls *.vcf.gz > vcf_list.txt
 
     # Merge VCF files
-    bcftools merge -l vcf_list.txt -Oz > merged_filtered.vcf.gz
+    bcftools merge -l vcf_list.txt -Ov -o ${prefix}.vcf
     """
 }

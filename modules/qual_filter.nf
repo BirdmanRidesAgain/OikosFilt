@@ -1,5 +1,5 @@
-include { FILT_MIN_QUAL } from './filt_qual'
-include { FILT_MIN_GQ } from './filt_gq'
+include { FILT_MIN_QUAL } from './filt_min_qual'
+include { FILT_MIN_GQ } from './filt_min_gq'
 
 workflow QUALITY_FILTER {
     take:
@@ -9,13 +9,8 @@ workflow QUALITY_FILTER {
 
     main:
     FILT_MIN_QUAL(vcf_ch, min_qual)
-    //FILT_MIN_QUAL.out.variant_counts.view { sample_name, count_file ->
-    //"Sample: ${sample_name}, Variants: ${count_file.text.trim()}"
-    //}
     FILT_MIN_GQ(FILT_MIN_QUAL.out.filt_vcf, min_gq)
-    //FILT_MIN_GQ.out.variant_counts.view { sample_name, count_file ->
-    //"Sample: ${sample_name}, Variants: ${count_file.text.trim()}"
-    //}
+
     emit:
     filt_vcf = FILT_MIN_QUAL.out.filt_vcf
     variant_counts_min_qual = FILT_MIN_QUAL.out.variant_counts
