@@ -1,13 +1,14 @@
 # `OikosFilt`
 A [NextFlow](https://www.nextflow.io/docs/latest/index.html)-enabled pipeline intended to streamline SNP discovery for `.vcf` files, with a focus on population genetics analysis.
-Takes a single `.vcf` file as input (zipped or unzipped), along with user-designated filtering parameters, and outputs a single `.vcf` file, with a `csv` reporting variants removed after every step.
+Takes a single `.vcf` file as input (zipped or unzipped), along with user-designated filtering parameters, and outputs a single `.vcf.gz` file.
+Upcoming versions will also output a `tsv` reporting variants removed after every step.
 
 ## Quickstart
 
 The pipeline can be run on default filter parameters with the following command:
 
 ```
-nextflow run OikosFilt.nf --vcf <input.vcf.gz> --prefix <output_prefix> -with_trace <output_prefix> -with-report <output_prefix>
+nextflow run OikosFilt.nf --vcf <input.vcf.gz> --prefix <output_prefix>
 ```
 
 - `--vcf` is the path to your variant file.
@@ -25,20 +26,32 @@ The following table documents all options specific to `OikosMap`:
 
 | Option | Default | Data type | Description |
 | -- | -- | -- | -- |
-| `--help`  | `FALSE` | Flag | Set to print a help message and exit. |
-| `--vcf` | `null` | String | The path to the variant file to be filtered. |
-| `--threads` | `nproc/2` | Int | The number of threads available to the program. Defaults to $\frac{1}{2}$ the number on the host machine. |
-| `--bi_snps` | `TRUE` | Flag | Whether or not remove indels and multiallelic SNPs. Defaults to TRUE. |
-| `--prefix` | `out` | String | The name of the output directory and vcf file. |
+| `--help`  | `FALSE` | Flag | Print a help message and exit. |
+| `--vcf` | `null` | String | Path to the variant file to be filtered. |
+| `--prefix` | `out` | String | Name of your output vcf. |
+| `--threads` | `nproc/2` | Int | Number of threads available to the program. Defaults to $\frac{1}{2}$ the number on the host machine. |
+| `--bi_snps` | `TRUE` | Flag | Whether or not remove indels and multiallelic SNPs. Evaluated per individual per site. |
+| `--dp_95ile` | `TRUE` | Flag | Whether or not remove sites with a depth score lower than the `2.5%ile` OR higher than the `97.5ile`. Evaluated per individual per site. |
+| `--min_dp` | `10` | Int | Minimum depth allowed in the file, per individual per site. Evaluated per individual per site, *after* `--dp_95ile`. Set to `null` to disable. |
+| `--min_qual` | `20` | Int | Minimum per-site SNP quality (QUAL) allowed in the file. Evaluated per individual per site. Set to `null` to disable. |
+| `--min_gq` | `20` | Int | Minimum genotype quality (GQ) allowed in the file. Evaluated per individual per site. Set to `null` to disable. |
+| `--min_maf` | `0.03` | Float | Minimum minor allele frequency (MAF) allowed in the file. Evaluated per site. Set to `null` to disable. |
+| `--max_fmissing` | `0.1` | Float | Maximum proportion of missing data allowed across all individuals at a given site. Evaluated per site. |
 
 
 ## High-level Description
-`OikosFilt` initially removes indels and multiallelic SNPs using [`bcftools`](https://github.com/samtools/bcftools?tab=readme-ov-file.
-It then writes results to a final output directory (`${prefix}_results/`) for the end-user to consume.
 
 ### Default filtering parameters
 
-Coming soon.
+`OikosFilt` initially removes indels and multiallelic SNPs using [`bcftools`](https://github.com/samtools/bcftools?tab=readme-ov-file).
+It then filters based on depth, initially removing the 
+It then writes results to a final output directory (`${prefix}_results/`) for the end-user to consume.
+
+By default, this removes both indels and sites with outside of the [95 percentile](https://en.wikipedia.org/wiki/Percentile) of depth distribution, with a minimum depth of 10.
+It also enforces a minimum [per-site SNP quality (QUAL) and genotype quality (GQ)](http://barcwiki.wi.mit.edu/wiki/SOPs/vcf) of 20 to all sites and individuals.
+For VCFs where there is more than one individual, it also removes sites where the [minor allele frequency (MAF)](https://en.wikipedia.org/wiki/Minor_allele_frequency) is less than 3%, and more than 10% of the data is missing across all individuals.
+
+These parameters are a reasonable starting point, but will not be suitable for all projects.
 
 ### Outputs
 OikosFilt produces two main outputs - a filtered `.vcf` and a `csv` summary file.
@@ -64,14 +77,6 @@ The pipeline includes two dependencies: [NextFlow](https://www.nextflow.io/docs/
 You will need to install both of these for the pipeline to run.
 [Docker](https://docs.docker.com/engine/install/) and [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html) are not currently supported.
 
-### Testing
-
-Testing behavior is contained within the `test` directory, and uses a combination of bash and the `nf-test` framework.
-To set up, use the following code:
-```
-./tests/generate_expected.sh
-nf-test test tests/main.nf.test
-```
 
 ### Requirements
 
