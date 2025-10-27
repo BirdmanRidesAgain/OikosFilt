@@ -7,6 +7,8 @@ include { SPLIT_VCF } from './modules/split_vcf'
 include { GET_BI_SNPS } from './modules/bi_snps'
 include { DEPTH_FILTER } from './modules/depth_filter'
 include { QUALITY_FILTER } from './modules/qual_filter'
+include { FILT_MIN_MAF } from './modules/filt_maf'
+include { FILT_MAX_FMISSING } from './modules/filt_fmissing'
 include { MERGE_VCFS } from './modules/merge_vcf'
 
 
@@ -43,18 +45,18 @@ workflow {
         ch_for_depth = SPLIT_VCF.out.individual_vcfs.flatten()
     }
 
+    //workflow steps. Both depth and quality filtering are linked, conceptually
     DEPTH_FILTER(ch_for_depth, params.min_dp)
     QUALITY_FILTER(DEPTH_FILTER.out.filt_vcf, params.min_qual, params.min_gq)
 
-    //more filters go here
-
-    
     
     // Collect and merge filtered VCFs
     MERGE_VCFS(QUALITY_FILTER.out.filt_vcf.collect())
+    FILT_MIN_MAF(MERGE_VCFS.out.filt_vcf, params.min_maf)
+    FILT_MAX_FMISSING(FILT_MIN_MAF.out.filt_vcf, params.max_fmissing)
 
     publish:
-    final_vcf = MERGE_VCFS.out.merged_vcf
+    final_vcf = FILT_MAX_FMISSING.out.merged_vcf
 }
 
 output {
