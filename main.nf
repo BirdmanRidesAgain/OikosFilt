@@ -3,6 +3,7 @@
 nextflow.enable.dsl = 2
 
 // Import modules
+include { PRINT_HELP } from './modules/print_help'
 include { SPLIT_VCF } from './modules/split_vcf'
 include { GET_BI_SNPS } from './modules/filt_bi_snps'
 include { DEPTH_FILTER } from './modules/depth_filter'
@@ -19,6 +20,12 @@ help_message='''
 
 workflow {
     main:
+
+    if (!params.help) {
+        PRINT_HELP(help_message)
+        exit 10
+    }
+
     log.info """\
         O I K O S F I L T - N F   P I P E L I N E
         ===================================
@@ -34,11 +41,6 @@ workflow {
         min_maf = ${params.min_maf}
         max_fmissing = ${params.max_fmissing}
     """.stripIndent()
-
-    if (!params.help) {
-        PRINT_HELP(help_message)
-        exit 10
-    }
     
     if (!params.vcf) {
         error "Please provide a VCF file with --vcf"
