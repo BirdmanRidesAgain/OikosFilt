@@ -22,5 +22,8 @@ process MERGE_VCFS {
 
     # Merge VCF files
     bcftools merge -l vcf_list.txt -Ov -o ${prefix}.vcf
+
+    # Clean up intermediate vcfs
+    rm *.vcf.gz vcf_list.txt
     """
 }

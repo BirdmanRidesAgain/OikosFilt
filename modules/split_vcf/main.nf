@@ -17,5 +17,8 @@ process SPLIT_VCF {
     while read sample; do
         bcftools view -c1 -s \$sample -Ov ${vcf} > \${sample}.vcf
     done < samples.txt
+
+    # Clean up intermediate files
+    rm samples.txt ${vcf}
     """
 }

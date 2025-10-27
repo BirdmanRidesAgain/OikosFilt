@@ -19,7 +19,11 @@ process GET_95ILE_DP{
 
     # Filter variants based on DP 95% CI
     bcftools filter -e "FORMAT/DP<\$lower_bound || FORMAT/DP>\$upper_bound" ${vcf} -Ov -o ${vcf.baseName}_${filt_name}.vcf
+
     # Count variants and save to file
     bcftools view -H ${vcf.baseName}_${filt_name}.vcf | wc -l > ${vcf.baseName}_${filt_name}_variants.count
+
+    # Clean up intermediate vcfs
+    rm ${vcf}
     """
 }

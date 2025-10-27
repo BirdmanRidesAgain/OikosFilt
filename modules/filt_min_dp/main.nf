@@ -17,5 +17,8 @@ process FILT_MIN_DP {
     bcftools filter -i "INFO/DP>=${min_dp}" ${vcf} -Ov -o ${vcf.baseName}_${filt_name}.vcf
     # Count variants and save to file
     bcftools view -H ${vcf.baseName}_${filt_name}.vcf | wc -l > ${vcf.baseName}_${filt_name}_variants.count
+
+    # Clean up intermediate vcfs
+    rm ${vcf}
     """
 }
