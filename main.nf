@@ -15,7 +15,7 @@ include { COMPRESS_VCF } from './modules/compress_vcf'
 workflow {
     main:
 
-    if (!params.help) {
+    if (params.help) {
         PRINT_HELP()
         exit 10
     }

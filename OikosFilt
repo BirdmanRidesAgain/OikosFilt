@@ -11,17 +11,27 @@ def main():
     parser.add_argument('-p','--prefix', type=str, default='out')
     parser.add_argument('-t','--threads', type=int)
     parser.add_argument('-bi','--bi_snps', type=str, default='true')
-    parser.add_argument('-d95','--dp_95ile', type=str)
-    parser.add_argument('-md','--min_dp', type=int)
-    parser.add_argument('-mq','--min_qual', type=int)
-    parser.add_argument('-mgq','--min_gq', type=int)
-    parser.add_argument('-mm','--min_maf', type=float)
-    parser.add_argument('-mf','--max_fmissing', type=float)
+    parser.add_argument('-d95','--dp_95ile', type=str, default='true')
+    parser.add_argument('-md','--min_dp', type=int, default=10)
+    parser.add_argument('-mq','--min_qual', type=int, default=20)
+    parser.add_argument('-mgq','--min_gq', type=int, default=20)
+    parser.add_argument('-mm','--min_maf', type=float, default=0.03)
+    parser.add_argument('-mf','--max_fmissing', type=float, default=0.1)
     args = parser.parse_args()
-# this will eventually be a python driver script
 
-    command=['main.nf','--vcf',args.vcf]
-    subprocess.run(command)
+
+
+    # Build a single command string from all provided arguments
+    command_items = ['main.nf']
+    for name, value in vars(args).items():
+        if value is None:
+            continue
+        command_items.append(f"--{name}")
+        command_items.append(str(value))
+    command = " ".join(command_items)
+    
+    # Run the pipeline
+    subprocess.run(command.split())
 
 # If this is being imported
 if __name__=="__main__":

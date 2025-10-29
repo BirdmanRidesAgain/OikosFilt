@@ -86,3 +86,79 @@ It does not require GPU support.
 ## Runtime
 
 Overall runtime scales roughly linearly with input data volume.
+
+## DAG
+
+```mermaid
+flowchart TB
+  subgraph " "
+    subgraph params
+      v0["help"]
+      v6["min_dp"]
+      v3["prefix"]
+      v5["bi_snps"]
+      v2["vcf"]
+      v11["max_fmissing"]
+      v4["threads"]
+      v10["min_maf"]
+      v7["dp_95ile"]
+      v9["min_gq"]
+      v8["min_qual"]
+    end
+    v14([SPLIT_VCF])
+    v16{ }
+    v22{ }
+    v28{ }
+    v33([MERGE_VCFS])
+    v35{ }
+    v40([COMPRESS_VCF])
+    subgraph s3[" "]
+      v17([GET_BI_SNPS])
+    end
+    subgraph s5[" "]
+      v23([DEPTH_FILTER])
+    end
+    subgraph s7[" "]
+      v29([QUALITY_FILTER])
+    end
+    subgraph s9[" "]
+      v36([GROUP_FILTER])
+    end
+    subgraph publish
+      v41["final_vcf"]
+    end
+    v2 --> v14
+    v5 --> v16
+    v14 --> v17
+    v6 --> v22
+    v7 --> v22
+    v17 --> v23
+    v6 --> v23
+    v14 --> v23
+    v8 --> v28
+    v9 --> v28
+    v17 --> v29
+    v23 --> v29
+    v8 --> v29
+    v9 --> v29
+    v14 --> v29
+    v17 --> v33
+    v3 --> v33
+    v23 --> v33
+    v29 --> v33
+    v14 --> v33
+    v10 --> v35
+    v11 --> v35
+    v33 --> v36
+    v10 --> v36
+    v11 --> v36
+    v33 --> v40
+    v36 --> v40
+    v40 --> v41
+    v16 --> s3
+    v22 --> s5
+    v28 --> s7
+    v35 --> s9
+  end
+
+```
