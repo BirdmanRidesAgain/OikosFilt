@@ -12,17 +12,11 @@ include { GROUP_FILTER } from './modules/group_filter'
 include { MERGE_VCFS } from './modules/merge_vcf'
 include { COMPRESS_VCF } from './modules/compress_vcf'
 
-help_message='''
-    Basic Usage:
-    nextflow run OikosMap.nf --vcf path/to/variants.vcf --prefix output_name [options]
-    For full parameter list, see README.md
-    '''
-
 workflow {
     main:
 
     if (!params.help) {
-        PRINT_HELP(help_message)
+        PRINT_HELP()
         exit 10
     }
 
