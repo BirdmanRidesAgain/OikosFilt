@@ -1,6 +1,5 @@
 process FILT_MIN_GQ {
     tag "$vcf"
-    conda 'bioconda::bcftools'
 
     input:
     path vcf

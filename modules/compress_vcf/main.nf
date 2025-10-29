@@ -1,6 +1,5 @@
 process COMPRESS_VCF {
     tag "$vcf"
-    conda 'bioconda::bcftools'
 
     input:
     path vcf

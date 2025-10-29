@@ -1,6 +1,5 @@
 process GET_95ILE_DP{
     tag "$vcf"
-    conda 'bioconda::bcftools'
 
     input:
     path vcf

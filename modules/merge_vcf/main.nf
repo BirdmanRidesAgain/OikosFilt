@@ -1,6 +1,5 @@
 process MERGE_VCFS {
     tag "Merge individual VCFs"
-    conda 'bioconda::bcftools'
 
     input:
     path vcfs

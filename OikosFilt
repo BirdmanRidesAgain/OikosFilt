@@ -6,10 +6,11 @@ import subprocess
 
 def main():
     ### DEFINE AND CHECK ARGS
-    parser = ArgumentParser(description="Takes a set of ONT-primer prefixes dddRADseq files and a set of barcodes and demultiplexes them.")
+    parser = ArgumentParser(description="Takes a vcf and filters it with the requested paremeters.")
     parser.add_argument('-v','--vcf', type=str, required=True)
-    parser.add_argument('-p','--prefix', type=str, default='out')
     parser.add_argument('-t','--threads', type=int)
+    parser.add_argument('-pro','--profile', type=str)
+    parser.add_argument('-pre','--prefix', type=str, default='out')
     parser.add_argument('-bi','--bi_snps', type=str, default='true')
     parser.add_argument('-d95','--dp_95ile', type=str, default='true')
     parser.add_argument('-md','--min_dp', type=int, default=10)
@@ -20,16 +21,20 @@ def main():
     args = parser.parse_args()
 
 
-
+    nf_variables = ['profile']
     # Build a single command string from all provided arguments
     command_items = ['main.nf']
     for name, value in vars(args).items():
         if value is None:
             continue
+        # profile is a nextflow variable, and needs a single quote
+        if str(name) in nf_variables:
+            command_items.append(f'-{name}')
+            command_items.append(str(value))
+            continue
         command_items.append(f"--{name}")
         command_items.append(str(value))
     command = " ".join(command_items)
-    
     # Run the pipeline
     subprocess.run(command.split())
 

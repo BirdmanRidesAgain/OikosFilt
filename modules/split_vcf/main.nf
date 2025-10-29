@@ -1,6 +1,5 @@
 process SPLIT_VCF {
     tag "$vcf"
-    conda 'bioconda::bcftools'
 
     input:
     path vcf

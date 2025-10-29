@@ -1,6 +1,5 @@
 process GET_BI_SNPS {
     tag "$vcf"
-    conda 'bioconda::bcftools'
 
     input:
     path vcf

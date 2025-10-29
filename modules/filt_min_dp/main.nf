@@ -1,6 +1,5 @@
 process FILT_MIN_DP {
     tag "$vcf"
-    conda 'bioconda::bcftools'
 
     input:
     path vcf

@@ -1,6 +1,5 @@
 process FILT_MAX_FMISSING{
     tag "$vcf"
-    conda 'bioconda::bcftools'
 
     input:
     path vcf
