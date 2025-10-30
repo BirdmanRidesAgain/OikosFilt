@@ -10,6 +10,8 @@ def main():
     parser.add_argument('-v','--vcf', type=str, required=True)
     parser.add_argument('-t','--threads', type=int)
     parser.add_argument('-pro','--profile', type=str)
+    parser.add_argument('-wt','--with_trace', type=str)
+    parser.add_argument('-wr','--with_report', type=str)
     parser.add_argument('-pre','--prefix', type=str, default='out')
     parser.add_argument('-bi','--bi_snps', type=str, default='true')
     parser.add_argument('-d95','--dp_95ile', type=str, default='true')
@@ -21,7 +23,7 @@ def main():
     args = parser.parse_args()
 
 
-    nf_variables = ['profile']
+    nf_variables = ['profile', 'with_trace', 'with_report']
     # Build a single command string from all provided arguments
     command_items = ['main.nf']
     for name, value in vars(args).items():
