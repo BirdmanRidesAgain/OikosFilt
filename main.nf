@@ -41,7 +41,7 @@ workflow {
     }
 
     // Input channel
-    ch_vcf = Channel.fromPath(params.vcf)
+    ch_vcf = channel.fromPath(params.vcf)
 
     // Split VCF into individual files
     SPLIT_VCF(ch_vcf)
