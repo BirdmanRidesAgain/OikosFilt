@@ -3,11 +3,11 @@ include { FILT_MIN_DP } from './filt_min_dp'
 
 workflow DEPTH_FILTER {
     take:
-    vcf_ch
+    ch_vcf
     min_dp
 
     main:
-    GET_95ILE_DP(vcf_ch)
+    GET_95ILE_DP(ch_vcf)
     FILT_MIN_DP(GET_95ILE_DP.out.filt_vcf, min_dp)
 
     emit:

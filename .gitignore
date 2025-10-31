@@ -8,6 +8,11 @@
 null/
 work/
 .nextflow
+results/
+.github/
+.vscode/
+conda_cache/
+
 
 # User-specific files
 *.rsuser

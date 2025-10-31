@@ -19,13 +19,14 @@ def main():
     parser.add_argument('-mq','--min_qual', type=int, default=20)
     parser.add_argument('-mgq','--min_gq', type=int, default=20)
     parser.add_argument('-mm','--min_maf', type=float, default=0.03)
-    parser.add_argument('-mf','--max_fmissing', type=float, default=0.1)
+    parser.add_argument('-fmi','--max_fmiss_ind', type=float, default=0.1)
+    parser.add_argument('-fms','--max_fmiss_site', type=float, default=0.1)
     args = parser.parse_args()
 
 
     nf_variables = ['profile', 'with_trace', 'with_report']
     # Build a single command string from all provided arguments
-    command_items = ['main.nf']
+    command_items = ['./main.nf']
     for name, value in vars(args).items():
         if value is None:
             continue

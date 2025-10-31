@@ -33,7 +33,8 @@ workflow {
         min_qual = ${params.min_qual}
         min_gq = ${params.min_gq}
         min_maf = ${params.min_maf}
-        max_fmissing = ${params.max_fmissing}
+        max_miss_ind = ${params.max_miss_ind}
+        max_miss_site = ${params.max_miss_ind}
     """.stripIndent()
     
     if (!params.vcf) {
@@ -76,8 +77,8 @@ workflow {
     MERGE_VCFS(ch_qual.collect(), params.prefix)
 
     def ch_group_filt
-    if (params.min_maf || params.max_fmissing) {
-        GROUP_FILTER(MERGE_VCFS.out.filt_vcf, params.min_maf, params.max_fmissing)
+    if (params.min_maf || params.max_fmiss_ind || params.max_fmiss_site ) {
+        GROUP_FILTER(MERGE_VCFS.out.filt_vcf, params.min_maf, params.max_fmiss_ind, params.max_fmiss_site)
         ch_group_filt = GROUP_FILTER.out.filt_vcf
     } else {
         ch_group_filt = MERGE_VCFS.out.filt_vcf
